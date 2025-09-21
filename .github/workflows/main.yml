@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Emscripten
         uses: emscripten-core/setup-emsdk@v3
@@ -113,7 +113,7 @@ jobs:
           cp yuzu-src/build/yuzu.html web/
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: yuzu-wasm-build
           path: web/
