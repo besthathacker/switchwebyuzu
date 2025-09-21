@@ -25,10 +25,11 @@ jobs:
 
       - name: Create inline stub modules
         run: |
-          mkdir -p yuzu-src/src/cpu yuzu-src/src/gpu yuzu-src/src/ui yuzu-src/src/thread yuzu-src/src/audio
+          cd yuzu-src
+          mkdir -p src/cpu yuzu-src/src/gpu yuzu-src/src/ui yuzu-src/src/thread yuzu-src/src/audio
 
           # CPU stub
-          cat << 'EOF' > yuzu-src/src/cpu/CPU.cpp
+          cat << 'EOF' > src/cpu/CPU.cpp
             #include <iostream>
 
             void initCPU() {
@@ -41,7 +42,7 @@ jobs:
           EOF
 
           # GPU stub
-          cat << 'EOF' > yuzu-src/src/gpu/GPU.cpp
+          cat << 'EOF' > src/gpu/GPU.cpp
             #include <iostream>
 
             void initGPU() {
@@ -54,7 +55,7 @@ jobs:
           EOF
 
           # Qt UI stub
-          cat << 'EOF' > yuzu-src/src/ui/QtUI.cpp
+          cat << 'EOF' > src/ui/QtUI.cpp
             #include <iostream>
 
             void initUI() {
@@ -63,7 +64,7 @@ jobs:
           EOF
 
           # Threads stub
-          cat << 'EOF' > yuzu-src/src/thread/Threads.cpp
+          cat << 'EOF' > src/thread/Threads.cpp
             #include <iostream>
 
             void initThreads() {
@@ -77,7 +78,7 @@ jobs:
           EOF
 
           # Audio stub
-          cat << 'EOF' > yuzu-src/src/audio/Audio.cpp
+          cat << 'EOF' > src/audio/Audio.cpp
             #include <iostream>
 
             void initAudio() {
@@ -88,9 +89,6 @@ jobs:
                 // Do nothing
             }
           EOF
-
-      - name: Create build directory
-        run: mkdir -p yuzu-src/build
 
       - name: Configure and build Yuzu WASM
         run: |
