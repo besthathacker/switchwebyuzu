@@ -19,7 +19,6 @@ jobs:
           cd emsdk
           ./emsdk install latest
           ./emsdk activate latest
-          source ./emsdk_env.sh
 
       - name: Clone Yuzu mirror (without submodules)
         run: git clone https://github.com/yuzu-emu-mirror/yuzu-mainline.git yuzu-src
@@ -93,21 +92,22 @@ jobs:
       - name: Create build directory
         run: mkdir -p yuzu-src/build
 
-      - name: Configure with emcmake
+      - name: Configure and build Yuzu WASM
         run: |
-          cd yuzu-src/build
-          emcmake cmake .. \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DYUZU_USE_QT=OFF \
-            -DYUZU_USE_VULKAN=OFF \
-            -DYUZU_ENABLE_JIT=OFF \
-            -DYUZU_ENABLE_THREADS=OFF
+           cd emsdk
+           ./emsdk install latest
+           ./emsdk activate latest
+           source ./emsdk_env.sh
 
-      - name: Build with emmake
-        run: |
-          cd yuzu-src/build
-          emmake make -j$(nproc)
+           cd ../../yuzu-src/build
+           emcmake cmake .. \
+             -DCMAKE_BUILD_TYPE=Release \
+             -DYUZU_USE_QT=OFF \
+             -DYUZU_USE_VULKAN=OFF \
+             -DYUZU_ENABLE_JIT=OFF \
+             -DYUZU_ENABLE_THREADS=OFF
 
+           emmake make -j$(nproc)
       - name: Copy output
         run: |
           mkdir -p web
