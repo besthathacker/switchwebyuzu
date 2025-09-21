@@ -25,8 +25,11 @@ jobs:
 
       - name: Create inline stub modules
         run: |
-          cd yuzu-src
-          mkdir -p src/cpu yuzu-src/src/gpu yuzu-src/src/ui yuzu-src/src/thread yuzu-src/src/audio
+          mkdir -p yuzu-src/src/cpu \
+                   yuzu-src/src/gpu \
+                   yuzu-src/src/ui \
+                   yuzu-src/src/thread \
+                   yuzu-src/src/audio
 
           # CPU stub
           cat << 'EOF' > src/cpu/CPU.cpp
