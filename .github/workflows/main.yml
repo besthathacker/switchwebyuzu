@@ -1,0 +1,119 @@
+name: Build Yuzu WASM Inline Stubs
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Emscripten
+        uses: emscripten-core/setup-emsdk@v3
+        with:
+          version: latest
+
+      - name: Clone Yuzu
+        run: git clone --recursive https://github.com/yuzu-emu/yuzu-mainline.git yuzu-src
+
+      - name: Create inline stub modules
+        run: |
+          mkdir -p yuzu-src/src/cpu yuzu-src/src/gpu yuzu-src/src/ui yuzu-src/src/thread yuzu-src/src/audio
+
+          # CPU stub
+          cat << 'EOF' > yuzu-src/src/cpu/CPU.cpp
+            #include <iostream>
+
+            void initCPU() {
+                std::cout << "[CPU] Interpreter-only stub initialized.\n";
+            }
+
+            void runFrame() {
+                // Do nothing, placeholder for CPU execution
+            }
+          EOF
+
+          # GPU stub
+          cat << 'EOF' > yuzu-src/src/gpu/GPU.cpp
+            #include <iostream>
+
+            void initGPU() {
+                std::cout << "[GPU] WebGL stub initialized.\n";
+            }
+
+            void renderFrame() {
+                // Placeholder for GPU rendering
+            }
+          EOF
+
+          # Qt UI stub
+          cat << 'EOF' > yuzu-src/src/ui/QtUI.cpp
+            #include <iostream>
+
+            void initUI() {
+                std::cout << "[UI] Stub UI initialized. Use HTML/JS for interface.\n";
+            }
+          EOF
+
+          # Threads stub
+          cat << 'EOF' > yuzu-src/src/thread/Threads.cpp
+            #include <iostream>
+
+            void initThreads() {
+                std::cout << "[Threads] Disabled for WASM build.\n";
+            }
+
+            void scheduleTask(void (*task)()) {
+                // Call directly, no multithreading
+                task();
+            }
+          EOF
+
+          # Audio stub
+          cat << 'EOF' > yuzu-src/src/audio/Audio.cpp
+            #include <iostream>
+
+            void initAudio() {
+                std::cout << "[Audio] Stub initialized. Use Web Audio in JS.\n";
+            }
+
+            void playSound(int soundID) {
+                // Do nothing
+            }
+          EOF
+
+      - name: Create build dir
+        run: mkdir -p yuzu-src/build
+
+      - name: Configure with emcmake
+        run: |
+          cd yuzu-src/build
+          emcmake cmake .. \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DYUZU_USE_QT=OFF \
+            -DYUZU_USE_VULKAN=OFF \
+            -DYUZU_ENABLE_JIT=OFF \
+            -DYUZU_ENABLE_THREADS=OFF
+
+      - name: Build with emmake
+        run: |
+          cd yuzu-src/build
+          emmake make -j$(nproc)
+
+      - name: Copy output
+        run: |
+          mkdir -p web
+          cp yuzu-src/build/yuzu.js web/
+          cp yuzu-src/build/yuzu.wasm web/
+          cp yuzu-src/build/yuzu.html web/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: yuzu-wasm-build
+          path: web/
