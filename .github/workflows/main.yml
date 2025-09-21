@@ -22,7 +22,7 @@ jobs:
           source ./emsdk_env.sh
           
       - name: Clone Yuzu
-        run: git clone --recursive https://github.com/yuzu-emu/yuzu-mainline.git yuzu-src
+        run: git clone --recursive https://github.com/yuzu-emu-mirror/yuzu-mainline.git yuzu-src
 
       - name: Create inline stub modules
         run: |
